@@ -159,12 +159,12 @@ try {
                         $item = '"'.$item.'"';
                     }
                 }
-                $tempFile = Webgrind_Config::xdebugOutputDir().'/temp_'.basename($dataFile, '.gz');
+                $tempFile = rtrim(Webgrind_Config::xdebugOutputDir(), '/').'/temp_'.basename($dataFile, '.gz');
                 $command = 'gunzip -c '.escapeshellarg(Webgrind_Config::xdebugOutputDir().$dataFile).' > '.escapeshellarg($tempFile).' && '
                          .Webgrind_Config::$pythonExecutable.' '.dirname(__DIR__).'/webgrind/library/gprof2dot.py -n '.$showFraction
                          .' -f callgrind '.escapeshellarg($tempFile).' | '
                          .Webgrind_Config::$dotExecutable.' -T'.Webgrind_Config::$graphImageType.' -o '.escapeshellarg($filename).' && '
-                         .'rm '.escapeshellarg($tempFile);
+                         .'rm '.escapeshellarg($tempFile).' 2>&1'; // Added 2>&1 to capture stderr
 
                 shell_exec($command);
             }
