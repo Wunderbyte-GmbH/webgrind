@@ -159,9 +159,14 @@ try {
                         $item = '"'.$item.'"';
                     }
                 }
-                shell_exec(Webgrind_Config::$pythonExecutable.' library/gprof2dot.py -n '.$showFraction
-                           .' -f callgrind '.escapeshellarg(Webgrind_Config::xdebugOutputDir().$dataFile).' | '
-                           .Webgrind_Config::$dotExecutable.' -T'.Webgrind_Config::$graphImageType.' -o '.escapeshellarg($filename));
+                $tempFile = Webgrind_Config::xdebugOutputDir().'/temp_'.basename($dataFile, '.gz');
+                $command = 'gunzip -c '.escapeshellarg(Webgrind_Config::xdebugOutputDir().$dataFile).' > '.escapeshellarg($tempFile).' && '
+                         .Webgrind_Config::$pythonExecutable.' '.dirname(__DIR__).'/webgrind/library/gprof2dot.py -n '.$showFraction
+                         .' -f callgrind '.escapeshellarg($tempFile).' | '
+                         .Webgrind_Config::$dotExecutable.' -T'.Webgrind_Config::$graphImageType.' -o '.escapeshellarg($filename).' && '
+                         .'rm '.escapeshellarg($tempFile);
+
+                shell_exec($command);
             }
 
             if (!file_exists($filename)) {
